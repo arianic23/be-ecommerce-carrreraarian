@@ -17,8 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
+@Service
 public class EcommerceService {
-
     @Autowired
     private ProductoRepository productoRepository;
 

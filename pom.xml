@@ -8,10 +8,10 @@
 		<version>4.1.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.electrostore</groupId>
-	<artifactId>microservice-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>demo-producto-pedido-service</name>
+	<groupId>com.ecommerce</groupId>
+<artifactId>be-ecommerce-carreraarian</artifactId>
+<version>0.0.1-SNAPSHOT</version>
+<name>be-ecommerce-carreraarian</name>
 	<description/>
 	<url/>
 	<licenses>
@@ -54,13 +54,13 @@
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
 				<!-- Spring Boot Starter Security -->
 		<dependency>
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
-		
+
 		<!-- JJWT API, Implementation & Jackson support -->
 		<dependency>
 		    <groupId>io.jsonwebtoken</groupId>
@@ -79,16 +79,23 @@
 		    <version>0.12.5</version>
 		    <scope>runtime</scope>
 		</dependency>
-		
+
 		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
-		    <artifactId>jackson-databind</artifactId> 
+		    <artifactId>jackson-databind</artifactId>
 		</dependency>
 
 		<dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-validation</artifactId>
 </dependency>
+
+		<!-- Springdoc OpenAPI (Swagger UI) para Spring Boot 4 -->
+		<dependency>
+		    <groupId>org.springdoc</groupId>
+		    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+		    <version>3.0.3</version>
+		</dependency>
 	</dependencies>
 
 	<build>
