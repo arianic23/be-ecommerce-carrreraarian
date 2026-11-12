@@ -1,7 +1,8 @@
 package com.ecommerce.demo.controller;
 
-import com.ecommerce.demo.entity.Producto;
+import com.ecommerce.demo.dto.ProductoDTO;
 import com.ecommerce.demo.service.EcommerceService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,26 +19,23 @@ public class ProductoController {
     private EcommerceService ecommerceService;
 
     @GetMapping
-    public List<Producto> listar() {
+    public List<ProductoDTO> listar() {
         return ecommerceService.listarProductos();
     }
 
     @GetMapping("/{id}")
-    public Producto obtenerPorId(@PathVariable Long id) {
+    public ProductoDTO obtenerPorId(@PathVariable Long id) {
         return ecommerceService.obtenerProductoPorId(id);
     }
 
     @PostMapping
-    public ResponseEntity<Producto> crear(@RequestBody Producto producto) {
-        producto.setId(null); // fuerza INSERT
-        return ResponseEntity.status(HttpStatus.CREATED).body(ecommerceService.guardarProducto(producto));
+    public ResponseEntity<ProductoDTO> crear(@Valid @RequestBody ProductoDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ecommerceService.crearProducto(dto));
     }
 
     @PutMapping("/{id}")
-    public Producto actualizar(@PathVariable Long id, @RequestBody Producto producto) {
-        ecommerceService.obtenerProductoPorId(id); // lanza 404 si no existe
-        producto.setId(id);
-        return ecommerceService.guardarProducto(producto);
+    public ProductoDTO actualizar(@PathVariable Long id, @Valid @RequestBody ProductoDTO dto) {
+        return ecommerceService.actualizarProducto(id, dto);
     }
 
     @DeleteMapping("/{id}")
@@ -47,18 +45,18 @@ public class ProductoController {
     }
 
     @GetMapping("/categoria/{categoria}")
-    public List<Producto> porCategoria(@PathVariable String categoria) {
+    public List<ProductoDTO> porCategoria(@PathVariable String categoria) {
         return ecommerceService.buscarProductosPorCategoriaNamed(categoria);
     }
 
     @GetMapping("/precio-max/{precioMax}")
-    public List<Producto> porPrecioMax(@PathVariable BigDecimal precioMax) {
+    public List<ProductoDTO> porPrecioMax(@PathVariable BigDecimal precioMax) {
         return ecommerceService.buscarPorPrecioMaximo(precioMax);
     }
 
     @GetMapping("/buscar")
-    public List<Producto> buscar(@RequestParam(defaultValue = "") String keyword,
-                                 @RequestParam(defaultValue = "0") Integer stockMin) {
+    public List<ProductoDTO> buscar(@RequestParam(defaultValue = "") String keyword,
+                                    @RequestParam(defaultValue = "0") Integer stockMin) {
         return ecommerceService.buscarPorFiltroAvanzadoEM(keyword, stockMin);
     }
 }

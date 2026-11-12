@@ -2,6 +2,7 @@ package com.ecommerce.demo.service;
 
 import com.ecommerce.demo.dto.ItemPedidoRequestDTO;
 import com.ecommerce.demo.dto.PedidoRequestDTO;
+import com.ecommerce.demo.dto.ProductoDTO;
 import com.ecommerce.demo.entity.DetallePedido;
 import com.ecommerce.demo.entity.Pedido;
 import com.ecommerce.demo.entity.Producto;
@@ -28,17 +29,24 @@ public class EcommerceService {
     @Autowired
     private ProductoCustomRepositoryImpl productoCustomRepository;
 
-    public List<Producto> listarProductos() {
-        return productoRepository.findAll();
+    public List<ProductoDTO> listarProductos() {
+        return productoRepository.findAll().stream().map(this::aDTO).toList();
     }
 
-    public Producto obtenerProductoPorId(Long id) {
-        return productoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con el ID: " + id));
+    public ProductoDTO obtenerProductoPorId(Long id) {
+        return aDTO(buscarProducto(id));
     }
 
-    public Producto guardarProducto(Producto producto) {
-        return productoRepository.save(producto);
+    public ProductoDTO crearProducto(ProductoDTO dto) {
+        Producto producto = new Producto();
+        copiarDatos(dto, producto);
+        return aDTO(productoRepository.save(producto));
+    }
+
+    public ProductoDTO actualizarProducto(Long id, ProductoDTO dto) {
+        Producto producto = buscarProducto(id);
+        copiarDatos(dto, producto);
+        return aDTO(productoRepository.save(producto));
     }
 
     public void eliminarProducto(Long id) {
@@ -48,16 +56,46 @@ public class EcommerceService {
         productoRepository.deleteById(id);
     }
 
-    public List<Producto> buscarProductosPorCategoriaNamed(String categoria) {
-        return productoRepository.findByCategoriaNamed(categoria);
+    public List<ProductoDTO> buscarProductosPorCategoriaNamed(String categoria) {
+        return productoRepository.findByCategoriaNamed(categoria).stream().map(this::aDTO).toList();
     }
 
-    public List<Producto> buscarPorPrecioMaximo(BigDecimal precioMax) {
-        return productoRepository.buscarPorPrecioMaximoJPQL(precioMax);
+    public List<ProductoDTO> buscarPorPrecioMaximo(BigDecimal precioMax) {
+        return productoRepository.buscarPorPrecioMaximoJPQL(precioMax).stream().map(this::aDTO).toList();
     }
 
-    public List<Producto> buscarPorFiltroAvanzadoEM(String keyword, Integer stockMin) {
-        return productoCustomRepository.buscarPorFiltrosAvanzados(keyword, stockMin);
+    public List<ProductoDTO> buscarPorFiltroAvanzadoEM(String keyword, Integer stockMin) {
+        return productoCustomRepository.buscarPorFiltrosAvanzados(keyword, stockMin).stream().map(this::aDTO).toList();
+    }
+
+    private Producto buscarProducto(Long id) {
+        return productoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con el ID: " + id));
+    }
+
+    private void copiarDatos(ProductoDTO dto, Producto producto) {
+        producto.setNombre(dto.getNombre());
+        producto.setCategoria(dto.getCategoria());
+        producto.setPrecioCompra(dto.getPrecioCompra());
+        producto.setPrecioVenta(dto.getPrecioVenta());
+        producto.setStock(dto.getStock());
+        producto.setMarca(dto.getMarca());
+        producto.setCodigoBarras(dto.getCodigoBarras());
+        producto.setFechaIngreso(dto.getFechaIngreso());
+    }
+
+    private ProductoDTO aDTO(Producto p) {
+        ProductoDTO dto = new ProductoDTO();
+        dto.setId(p.getId());
+        dto.setNombre(p.getNombre());
+        dto.setCategoria(p.getCategoria());
+        dto.setPrecioCompra(p.getPrecioCompra());
+        dto.setPrecioVenta(p.getPrecioVenta());
+        dto.setStock(p.getStock());
+        dto.setMarca(p.getMarca());
+        dto.setCodigoBarras(p.getCodigoBarras());
+        dto.setFechaIngreso(p.getFechaIngreso());
+        return dto;
     }
 
     @Transactional
@@ -79,13 +117,13 @@ public class EcommerceService {
             producto.setStock(producto.getStock() - item.getCantidad());
             productoRepository.save(producto);
 
-            BigDecimal subtotal = producto.getPrecio().multiply(BigDecimal.valueOf(item.getCantidad()));
+            BigDecimal subtotal = producto.getPrecioVenta().multiply(BigDecimal.valueOf(item.getCantidad()));
             montoTotalAcumulado = montoTotalAcumulado.add(subtotal);
 
             DetallePedido detalle = new DetallePedido();
             detalle.setProducto(producto);
             detalle.setCantidad(item.getCantidad());
-            detalle.setPrecioUnitario(producto.getPrecio());
+            detalle.setPrecioUnitario(producto.getPrecioVenta());
             detalle.setSubtotal(subtotal);
 
             pedido.addDetalle(detalle);
